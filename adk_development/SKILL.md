@@ -6,16 +6,7 @@ description: Guidelines and snippets for adding skills, rules, and memory manage
 
 When assisting with advanced modifications to Google ADK framework agents, consult these documented best practices to answer questions or modify logic.
 
-## 1. Prerequisites (Environment Variables)
-
-Before starting work on building any agents, you MUST collect necessary environment variables from the user unless they are already present in the current session. 
-Ask the user to provide:
-- `GOOGLE_CLOUD_PROJECT`
-- `GOOGLE_CLOUD_LOCATION`
-
-You MUST automatically set `GOOGLE_GENAI_USE_VERTEXAI=1` in the generated `.env` file without asking the user.
-
-## 2. System Instructions (Rules) in ADK
+## 1. System Instructions (Rules) in ADK
 
 To add personality, context, or rules to an ADK Agent, declare instructions when instantiating the LLM client or root agent, or design a custom Prompt class.
 
@@ -30,7 +21,7 @@ class MyAgent:
         return f"{self.system_instruction}\nUser asked: {question}"
 ```
 
-## 3. Defining Skills (Tools)
+## 2. Defining Skills (Tools)
 
 When attaching external functionalities to the LLM within an ADK project (like database lookups or external APIs), you create Python functions and expose them as tools. 
 > Ensure typing and docstrings are immaculate, as the underlying platform uses them to generate schemas.
@@ -48,21 +39,7 @@ def lookup_database(user_id: str) -> dict:
 # Then, attach or pass this tool to your agent's underlying generative model.
 ```
 
-### 3.1 Built-in ADK Tools (Google Search)
-When an agent requires Google Search grounding or other standard tools, you should **always check the official ADK Python repository** for predefined schemas before implementing from scratch:
-👉 https://github.com/google/adk-python/tree/main/src/google/adk
-
-Do **NOT** use raw Gemini `google.genai.types.Tool` types. ADK provides its own wrappers for standard tools to ensure compatibility with Agent Engine schemas.
-
-**Correct Usage (Google Search Example):**
-```python
-from google.adk.tools import google_search
-
-# Inside LlmAgent instantiation:
-tools=[google_search]
-```
-
-## 4. Streaming and Asynchronous Invocation
+## 3. Streaming and Asynchronous Invocation
 
 Agent Engine supports streaming tokens using `async_stream` or `stream` mode.
 When a user asks for streaming, ensure your `class_methods` inside the `deploy.py` exposes the generator function properly:
@@ -76,9 +53,5 @@ When a user asks for streaming, ensure your `class_methods` inside the `deploy.p
 ]
 ```
 
-## 5. Reference Documentation
-
-When encountering an unknown requirement, interface, or evaluating the best approach, consult the official resources before writing code:
-
-1. **API Reference & Guides**: [https://google.github.io/adk-docs/](https://google.github.io/adk-docs/)
-2. **Repository & Examples**: [https://github.com/google/adk-python](https://github.com/google/adk-python) (Look inside the `examples/` directory for validated patterns).
+## 3. Pre-requisites & Environment Variables
+Before starting work to build new ADK agents, always check the current session context to see if the required environment variables are present. If `GOOGLE_CLOUD_PROJECT` and `GOOGLE_CLOUD_LOCATION` have not been provided, you MUST explicitly ask the user for them before writing any configuration or code.\n\nAdditionally, you must automatically set `GOOGLE_GENAI_USE_VERTEXAI=1` in the `.env` file and any deployment configurations.
